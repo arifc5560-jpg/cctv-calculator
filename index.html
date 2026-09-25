@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arif CCTV Calculator - Calculate HDD, Cable & PoE Switch</title>
+    <meta name="description" content="Free Online CCTV Calculator to estimate Hard Disk Drive (HDD) capacity, cable length, and PoE switch ports for IP and Analog cameras.">
+    <style>
+        body{font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px}
+        .wrap{max-width:520px;margin:auto;background:#fff;padding:20px;border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,.15)}
+        h1{text-align:center;font-size:24px}
+        label{display:block;margin-top:14px;font-weight:bold}
+        input,select,button{width:100%;padding:12px;margin-top:6px;border-radius:10px;border:1px solid #ccc;font-size:16px}
+        button{background:#0a7a3d;color:#fff;border:none;font-weight:bold;cursor:pointer}
+        .result{display:none;background:#eef8f1;padding:14px;border-radius:12px;margin-top:18px}
+        .small{color:#666;font-size:13px;text-align:center}
+        .affiliate-box{margin-top:15px;padding:10px;background:#fff8e7;border:1px dashed #f0a500;border-radius:8px;text-align:center}
+        .affiliate-box a{color:#d97706;font-weight:bold;text-decoration:none}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>📹 Arif CCTV Calculator</h1>
+    <p class="small">Works on Android • iPhone • Laptop</p>
+    
+    <label>Number of Cameras</label>
+    <input id="cams" type="number" value="8">
+    
+    <label>Average Cable per Camera (m)</label>
+    <input id="cable" type="number" value="30">
+    
+    <label>Camera Type</label>
+    <select id="type"><option>IP (PoE)</option><option>Analog</option></select>
+    
+    <label>Resolution</label>
+    <select id="res"><option value="2">2MP</option><option value="4" selected>4MP</option><option value="8">8MP</option></select>
+    
+    <label>Recording Days</label>
+    <select id="days"><option>7</option><option>15</option><option selected>30</option></select>
+    
+    <button onclick="calc()">Calculate</button>
+    
+    <div class="result" id="out">
+        <p><b>Total Cable:</b> <span id="tc"></span> m</p>
+        <p><b>NVR:</b> <span id="nvr"></span> Channel</p>
+        <p><b>PoE Switch:</b> <span id="poe"></span></p>
+        <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
+        
+        <div class="affiliate-box">
+            🛒 <a href="https://www.amazon.com" target="_blank" id="buy-link">Buy Recommended Surveillance Hard Drive</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function calc(){
+    let cams=+camsEl.value,cable=+cableEl.value,res=+resEl.value,days=+daysEl.value;
+    let total=cams*cable;
+    let nvr=cams<=4?4:cams<=8?8:cams<=16?16:cams<=32?32:64;
+    let poe=typeEl.value.startsWith("IP")?nvr+" Port":"Not Required";
+    let gb={2:8,4:16,8:32}[res]*cams*days; let tb=gb/1024;
+    let h=tb<=1?"1TB":tb<=2?"2TB":tb<=4?"4TB":tb<=8?"8TB":"16TB+";
+    
+    tc.textContent=total; 
+    nvrEl.textContent=nvr; 
+    poeEl.textContent=poe; 
+    hdd.textContent=h+" (≈"+tb.toFixed(1)+"TB)";
+    out.style.display="block";
+}
+const camsEl=document.getElementById("cams"), 
+      cableEl=document.getElementById("cable"), 
+      resEl=document.getElementById("res"), 
+      daysEl=document.getElementById("days"), 
+      typeEl=document.getElementById("type"), 
+      nvrEl=document.getElementById("nvr"),
+      poeEl=document.getElementById("poe");
+</script>
+</body>
+</html>

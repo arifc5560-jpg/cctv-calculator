@@ -39,9 +39,16 @@
     
     <label>Resolution</label>
     <select id="res">
+        <option value="1">1MP</option>
         <option value="2">2MP</option>
+        <option value="3">3MP</option>
         <option value="4" selected>4MP</option>
+        <option value="5">5MP</option>
+        <option value="6">6MP</option>
         <option value="8">8MP</option>
+        <option value="12">12MP</option>
+        <option value="16">16MP</option>
+        <option value="20">20MP+</option>
     </select>
     
     <label>Recording Days</label>
@@ -83,8 +90,20 @@ function calc(){
     // PoE Switch
     let poe = type.startsWith("IP") ? nvr + " Port" : "Not Required";
     
-    // Storage calculation (GB per day per camera)
-    let gbPerDay = {2:8, 4:16, 8:32}[res];
+    // Storage calculation (Approximate GB per day per camera)
+    let gbPerDay = {
+        1: 5,      // 1MP
+        2: 8,      // 2MP
+        3: 12,     // 3MP
+        4: 16,     // 4MP
+        5: 20,     // 5MP
+        6: 24,     // 6MP
+        8: 32,     // 8MP
+        12: 45,    // 12MP
+        16: 60,    // 16MP
+        20: 80     // 20MP+
+    }[res];
+    
     let totalGB = gbPerDay * cams * days;
     let tb = totalGB / 1024;
     
@@ -99,7 +118,8 @@ function calc(){
     else if(tb <= 12) h = "12TB";
     else if(tb <= 16) h = "16TB";
     else if(tb <= 20) h = "20TB";
-    else h = "20TB+ (Multiple HDDs recommended)";
+    else if(tb <= 24) h = "24TB";
+    else h = "24TB+ (Multiple HDDs recommended)";
     
     document.getElementById("tc").textContent = total;
     document.getElementById("nvr").textContent = nvr;

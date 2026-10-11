@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arif CCTV Calculator - Mixed Resolution</title>
-    <meta name="description" content="Free Online CCTV Calculator with Mixed Resolution support. Calculate HDD, Cable & PoE Switch for different megapixel cameras including 4K.">
+    <meta name="description" content="Free Online CCTV Calculator with Mixed Resolution, Brand & Model support.">
     <style>
         body{font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px}
         .wrap{max-width:520px;margin:auto;background:#fff;padding:20px;border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,.15)}
@@ -34,12 +34,13 @@
         .res-guide table{width:100%;border-collapse:collapse;margin-top:8px}
         .res-guide td{padding:4px 0;border-bottom:1px solid #e2e8f0}
         .res-guide td:first-child{font-weight:bold;width:90px}
+        .group-details{font-size:13px;color:#475569;margin-top:6px}
     </style>
 </head>
 <body>
 <div class="wrap">
     <h1>📹 Arif CCTV Calculator</h1>
-    <p class="small">Mixed Resolution Support • Works on Mobile & Laptop</p>
+    <p class="small">Mixed Resolution + Brand & Model Support</p>
 
     <label>Average Cable per Camera (m)</label>
     <input id="cable" type="number" value="30" min="1">
@@ -67,6 +68,7 @@
         <p><b>NVR:</b> <span id="nvr"></span> Channel</p>
         <p><b>PoE Switch:</b> <span id="poe"></span></p>
         <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
+        <div id="groupSummary" style="margin-top:10px;font-size:13px;"></div>
 
         <div class="warning-box" id="poeWarning"></div>
         
@@ -125,7 +127,25 @@ function addGroup(cams = 4, res = 4) {
             <span class="group-title">Group ${id}</span>
             <button class="btn-remove" onclick="removeGroup(${id})">Remove</button>
         </div>
-        <div class="row">
+        
+        <label style="margin-top:8px;font-size:14px;">Brand</label>
+        <select class="brand-input">
+            <option value="Reolink">Reolink</option>
+            <option value="Hikvision">Hikvision</option>
+            <option value="Dahua">Dahua</option>
+            <option value="Amcrest">Amcrest</option>
+            <option value="Uniview">Uniview</option>
+            <option value="eufy">eufy</option>
+            <option value="Tapo">Tapo</option>
+            <option value="ANNKE">ANNKE</option>
+            <option value="Hiseeu">Hiseeu</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label style="margin-top:10px;font-size:14px;">Model (optional)</label>
+        <input type="text" class="model-input" placeholder="e.g. RLC-810A, DS-2CD2T86...">
+
+        <div class="row" style="margin-top:10px;">
             <div>
                 <label style="margin-top:0;font-size:14px;">Cameras</label>
                 <input type="number" class="cams-input" value="${cams}" min="1">
@@ -173,13 +193,21 @@ function calc() {
 
     let totalCams = 0;
     let totalGB = 0;
+    let summaryHTML = "<b>Camera Details:</b><br>";
 
-    groups.forEach(g => {
+    groups.forEach((g, index) => {
         const cams = +g.querySelector(".cams-input").value;
         const res = +g.querySelector(".res-input").value;
+        const brand = g.querySelector(".brand-input").value;
+        const model = g.querySelector(".model-input").value.trim();
+
         if (cams < 1) return;
+
         totalCams += cams;
         totalGB += (gbMap[res] || 16) * cams * days;
+
+        const resText = g.querySelector(".res-input").selectedOptions[0].text;
+        summaryHTML += `• Group ${index+1}: ${cams} × \( {brand} \){model ? ' ' + model : ''} (${resText})<br>`;
     });
 
     if (totalCams === 0) {
@@ -215,6 +243,7 @@ function calc() {
     document.getElementById("nvr").textContent = nvr;
     document.getElementById("poe").textContent = poe;
     document.getElementById("hdd").textContent = h + " (≈ " + tb.toFixed(1) + " TB)";
+    document.getElementById("groupSummary").innerHTML = summaryHTML;
     document.getElementById("out").style.display = "block";
 
     // PoE Distance Warning

@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arif CCTV Calculator - Mixed Resolution</title>
-    <meta name="description" content="Free Online CCTV Calculator with Mixed Resolution, Brand & Model support.">
+    <title>Arif CCTV Calculator</title>
     <style>
         body{font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px}
         .wrap{max-width:520px;margin:auto;background:#fff;padding:20px;border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,.15)}
@@ -18,23 +17,21 @@
         .btn-add:hover{background:#1d4ed8}
         .btn-remove{background:#dc2626;width:auto;padding:8px 14px;font-size:14px;margin-top:0}
         .btn-remove:hover{background:#b91c1c}
-        .group{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-top:12px;position:relative}
+        .group{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-top:12px}
         .group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
         .group-title{font-weight:bold;color:#334155}
         .result{display:none;background:#eef8f1;padding:14px;border-radius:12px;margin-top:18px}
         .hint{font-size:12px;color:#888;margin-top:4px}
-        .affiliate-box{margin-top:15px;padding:10px;background:#fff8e7;border:1px dashed #f0a500;border-radius:8px;text-align:center}
-        .affiliate-box a{color:#d97706;font-weight:bold;text-decoration:none}
+        .affiliate-box{margin-top:15px;padding:12px;background:#fff8e7;border:1px dashed #f0a500;border-radius:8px;text-align:center}
+        .affiliate-box a{color:#d97706;font-weight:bold;text-decoration:none;display:block;margin:6px 0}
         .row{display:flex;gap:10px}
         .row > div{flex:1}
         .info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;color:#0369a1;line-height:1.5}
         .warning-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:#b91c1c;line-height:1.5;display:none}
         .res-guide{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;line-height:1.6}
-        .res-guide b{color:#1e293b}
         .res-guide table{width:100%;border-collapse:collapse;margin-top:8px}
         .res-guide td{padding:4px 0;border-bottom:1px solid #e2e8f0}
         .res-guide td:first-child{font-weight:bold;width:90px}
-        .group-details{font-size:13px;color:#475569;margin-top:6px}
     </style>
 </head>
 <body>
@@ -52,14 +49,13 @@
     </select>
 
     <label>Recording Days</label>
-    <input id="days" type="number" value="30" min="1" placeholder="e.g. 30, 90, 180, 365">
+    <input id="days" type="number" value="30" min="1">
     <div class="hint">30 = 1 month • 90 = 3 months • 180 = 6 months • 365 = 1 year</div>
 
     <label style="margin-top:20px;">Camera Groups</label>
     <div id="groups"></div>
 
     <button class="btn-add" onclick="addGroup()">+ Add Camera Group</button>
-
     <button onclick="calc()" style="margin-top:16px;">Calculate</button>
 
     <div class="result" id="out">
@@ -68,52 +64,41 @@
         <p><b>NVR:</b> <span id="nvr"></span> Channel</p>
         <p><b>PoE Switch:</b> <span id="poe"></span></p>
         <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
-        <div id="groupSummary" style="margin-top:10px;font-size:13px;"></div>
+        <div id="groupSummary" style="margin-top:12px;font-size:13.5px;line-height:1.6;"></div>
 
         <div class="warning-box" id="poeWarning"></div>
-        
+
         <div class="affiliate-box">
-            🛒 <a href="https://www.amazon.com" target="_blank">Buy Recommended Surveillance Hard Drive</a>
+            <b>🛒 Buy Recommended Products</b><br><br>
+            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Surveillance Hard Drive (Amazon)</a>
+            <a href="https://www.amazon.com/s?k=4k+poe+camera" target="_blank">→ 4K PoE Cameras (Amazon)</a>
+            <a href="https://www.amazon.com/s?k=poe+switch" target="_blank">→ PoE Switch (Amazon)</a>
         </div>
     </div>
 
-    <!-- Resolution Guide -->
     <div class="res-guide">
         <b>📷 Camera Resolution Guide</b>
         <table>
-            <tr><td>1MP</td><td>Basic, low light areas, budget</td></tr>
-            <tr><td>2MP</td><td>Most common, good for general use</td></tr>
-            <tr><td>3MP</td><td>Better clarity than 2MP</td></tr>
-            <tr><td>4MP</td><td>Recommended for shops & homes</td></tr>
-            <tr><td>5MP</td><td>Good facial detail</td></tr>
-            <tr><td>6MP</td><td>High detail, larger areas</td></tr>
-            <tr><td>8MP / 4K</td><td>Excellent detail (True 4K)</td></tr>
-            <tr><td>12MP+</td><td>Very high detail, number plate & face recognition</td></tr>
+            <tr><td>1MP</td><td>Basic, budget</td></tr>
+            <tr><td>2MP</td><td>Most common</td></tr>
+            <tr><td>4MP</td><td>Best for homes & shops</td></tr>
+            <tr><td>8MP / 4K</td><td>Excellent detail</td></tr>
+            <tr><td>12MP+</td><td>Number plate & face recognition</td></tr>
         </table>
-        <div style="margin-top:8px;font-size:12px;color:#64748b;">
-            Higher resolution = more storage needed
-        </div>
     </div>
 
-    <!-- Helpful Notes -->
     <div class="info-box">
         <b>📌 Important Notes:</b><br><br>
-        <b>1. Camera Brand & HDD:</b><br>
-        Brand se hard drive size pe zyada farq nahi padta. Storage mainly <b>Resolution + Bitrate + Days</b> pe depend karta hai. H.265/H.265+ compression se thoda storage bach sakta hai.<br><br>
-        
-        <b>2. PoE Cable Length Guide:</b><br>
-        • 0–80m → Safe (Normal PoE kaafi)<br>
-        • 80–100m → Borderline (Achhi Cat6 + strong PoE switch use karein)<br>
-        • 100m se zyada → <b>External Power</b> ya PoE Extender zaroori
+        <b>1. Camera Brand & HDD:</b> Brand se storage pe zyada farq nahi padta. Resolution + Days zyada important hain.<br><br>
+        <b>2. PoE Cable Length:</b><br>
+        • 0–80m → Safe<br>
+        • 80–100m → Borderline (Cat6 + strong PoE switch)<br>
+        • 100m+ → External Power ya PoE Extender zaroori
     </div>
 </div>
 
 <script>
-const gbMap = {
-    1: 5, 2: 8, 3: 12, 4: 16, 5: 20,
-    6: 24, 8: 32, 12: 45, 16: 60, 20: 80
-};
-
+const gbMap = {1:5, 2:8, 3:12, 4:16, 5:20, 6:24, 8:32, 12:45, 16:60, 20:80};
 let groupCount = 0;
 
 function addGroup(cams = 4, res = 4) {
@@ -143,7 +128,7 @@ function addGroup(cams = 4, res = 4) {
         </select>
 
         <label style="margin-top:10px;font-size:14px;">Model (optional)</label>
-        <input type="text" class="model-input" placeholder="e.g. RLC-810A, DS-2CD2T86...">
+        <input type="text" class="model-input" placeholder="e.g. RLC-810A">
 
         <div class="row" style="margin-top:10px;">
             <div>
@@ -153,16 +138,16 @@ function addGroup(cams = 4, res = 4) {
             <div>
                 <label style="margin-top:0;font-size:14px;">Resolution</label>
                 <select class="res-input">
-                    <option value="1" ${res==1?'selected':''}>1MP</option>
-                    <option value="2" ${res==2?'selected':''}>2MP</option>
-                    <option value="3" ${res==3?'selected':''}>3MP</option>
-                    <option value="4" ${res==4?'selected':''}>4MP</option>
-                    <option value="5" ${res==5?'selected':''}>5MP</option>
-                    <option value="6" ${res==6?'selected':''}>6MP</option>
-                    <option value="8" ${res==8?'selected':''}>8MP / 4K</option>
-                    <option value="12" ${res==12?'selected':''}>12MP</option>
-                    <option value="16" ${res==16?'selected':''}>16MP</option>
-                    <option value="20" ${res==20?'selected':''}>20MP+</option>
+                    <option value="1">1MP</option>
+                    <option value="2">2MP</option>
+                    <option value="3">3MP</option>
+                    <option value="4" selected>4MP</option>
+                    <option value="5">5MP</option>
+                    <option value="6">6MP</option>
+                    <option value="8">8MP / 4K</option>
+                    <option value="12">12MP</option>
+                    <option value="16">16MP</option>
+                    <option value="20">20MP+</option>
                 </select>
             </div>
         </div>
@@ -181,7 +166,7 @@ function calc() {
     const type = document.getElementById("type").value;
 
     if (cable < 1 || days < 1) {
-        alert("Please enter valid Cable and Days (minimum 1)");
+        alert("Please enter valid numbers");
         return;
     }
 
@@ -193,21 +178,24 @@ function calc() {
 
     let totalCams = 0;
     let totalGB = 0;
-    let summaryHTML = "<b>Camera Details:</b><br>";
+    let summary = "<b>Camera Details:</b><br>";
 
-    groups.forEach((g, index) => {
+    groups.forEach((g, i) => {
         const cams = +g.querySelector(".cams-input").value;
         const res = +g.querySelector(".res-input").value;
         const brand = g.querySelector(".brand-input").value;
         const model = g.querySelector(".model-input").value.trim();
+        const resText = g.querySelector(".res-input").selectedOptions[0].text;
 
         if (cams < 1) return;
 
         totalCams += cams;
         totalGB += (gbMap[res] || 16) * cams * days;
 
-        const resText = g.querySelector(".res-input").selectedOptions[0].text;
-        summaryHTML += `• Group ${index+1}: ${cams} × \( {brand} \){model ? ' ' + model : ''} (${resText})<br>`;
+        let line = "• Group " + (i+1) + ": " + cams + " × " + brand;
+        if (model) line += " " + model;
+        line += " (" + resText + ")<br>";
+        summary += line;
     });
 
     if (totalCams === 0) {
@@ -215,16 +203,10 @@ function calc() {
         return;
     }
 
-    const totalCable = totalCams * cable;
     const tb = totalGB / 1024;
-
-    // NVR
     let nvr = totalCams <= 4 ? 4 : totalCams <= 8 ? 8 : totalCams <= 16 ? 16 : totalCams <= 32 ? 32 : 64;
-
-    // PoE
     let poe = type.startsWith("IP") ? nvr + " Port" : "Not Required";
 
-    // HDD recommendation
     let h;
     if (tb <= 1) h = "1TB";
     else if (tb <= 2) h = "2TB";
@@ -236,31 +218,30 @@ function calc() {
     else if (tb <= 16) h = "16TB";
     else if (tb <= 20) h = "20TB";
     else if (tb <= 24) h = "24TB";
-    else h = "24TB+ (Multiple HDDs recommended)";
+    else h = "24TB+ (Multiple HDDs)";
 
     document.getElementById("totalCams").textContent = totalCams;
-    document.getElementById("tc").textContent = totalCable;
+    document.getElementById("tc").textContent = totalCams * cable;
     document.getElementById("nvr").textContent = nvr;
     document.getElementById("poe").textContent = poe;
     document.getElementById("hdd").textContent = h + " (≈ " + tb.toFixed(1) + " TB)";
-    document.getElementById("groupSummary").innerHTML = summaryHTML;
+    document.getElementById("groupSummary").innerHTML = summary;
     document.getElementById("out").style.display = "block";
 
-    // PoE Distance Warning
-    const warningBox = document.getElementById("poeWarning");
+    // PoE Warning
+    const warn = document.getElementById("poeWarning");
     if (type.startsWith("IP") && cable > 100) {
-        warningBox.style.display = "block";
-        warningBox.innerHTML = `<b>⚠️ PoE Warning:</b> Average cable <b>${cable}m</b> hai. 100m se zyada pe voltage drop hota hai. <b>External Power</b> ya <b>PoE Extender</b> use karein.`;
+        warn.style.display = "block";
+        warn.innerHTML = "<b>⚠️ PoE Warning:</b> " + cable + "m cable hai. 100m se zyada pe <b>External Power</b> ya PoE Extender use karein.";
     } else if (type.startsWith("IP") && cable > 80) {
-        warningBox.style.display = "block";
-        warningBox.innerHTML = `<b>⚠️ PoE Caution:</b> Average cable <b>${cable}m</b> hai. 80–100m borderline range hai. Achhi quality <b>Cat6</b> + strong PoE+ switch use karein.`;
+        warn.style.display = "block";
+        warn.innerHTML = "<b>⚠️ PoE Caution:</b> " + cable + "m cable borderline hai. Achhi Cat6 + strong PoE+ switch use karein.";
     } else {
-        warningBox.style.display = "none";
+        warn.style.display = "none";
     }
 }
 
-// Start with one default group
-addGroup(8, 4);
+addGroup(4, 4);
 </script>
 </body>
 </html>

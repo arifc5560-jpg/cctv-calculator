@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arif CCTV Calculator - Mixed Resolution</title>
-    <meta name="description" content="Free Online CCTV Calculator with Mixed Resolution support. Calculate HDD, Cable & PoE Switch for different megapixel cameras.">
+    <meta name="description" content="Free Online CCTV Calculator with Mixed Resolution support. Calculate HDD, Cable & PoE Switch for different megapixel cameras including 4K.">
     <style>
         body{font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px}
         .wrap{max-width:520px;margin:auto;background:#fff;padding:20px;border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,.15)}
@@ -27,6 +27,13 @@
         .affiliate-box a{color:#d97706;font-weight:bold;text-decoration:none}
         .row{display:flex;gap:10px}
         .row > div{flex:1}
+        .info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;color:#0369a1;line-height:1.5}
+        .warning-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:#b91c1c;line-height:1.5;display:none}
+        .res-guide{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;line-height:1.6}
+        .res-guide b{color:#1e293b}
+        .res-guide table{width:100%;border-collapse:collapse;margin-top:8px}
+        .res-guide td{padding:4px 0;border-bottom:1px solid #e2e8f0}
+        .res-guide td:first-child{font-weight:bold;width:90px}
     </style>
 </head>
 <body>
@@ -60,10 +67,42 @@
         <p><b>NVR:</b> <span id="nvr"></span> Channel</p>
         <p><b>PoE Switch:</b> <span id="poe"></span></p>
         <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
+
+        <div class="warning-box" id="poeWarning"></div>
         
         <div class="affiliate-box">
             🛒 <a href="https://www.amazon.com" target="_blank">Buy Recommended Surveillance Hard Drive</a>
         </div>
+    </div>
+
+    <!-- Resolution Guide -->
+    <div class="res-guide">
+        <b>📷 Camera Resolution Guide</b>
+        <table>
+            <tr><td>1MP</td><td>Basic, low light areas, budget</td></tr>
+            <tr><td>2MP</td><td>Most common, good for general use</td></tr>
+            <tr><td>3MP</td><td>Better clarity than 2MP</td></tr>
+            <tr><td>4MP</td><td>Recommended for shops & homes</td></tr>
+            <tr><td>5MP</td><td>Good facial detail</td></tr>
+            <tr><td>6MP</td><td>High detail, larger areas</td></tr>
+            <tr><td>8MP / 4K</td><td>Excellent detail (True 4K)</td></tr>
+            <tr><td>12MP+</td><td>Very high detail, number plate & face recognition</td></tr>
+        </table>
+        <div style="margin-top:8px;font-size:12px;color:#64748b;">
+            Higher resolution = more storage needed
+        </div>
+    </div>
+
+    <!-- Helpful Notes -->
+    <div class="info-box">
+        <b>📌 Important Notes:</b><br><br>
+        <b>1. Camera Brand & HDD:</b><br>
+        Brand se hard drive size pe zyada farq nahi padta. Storage mainly <b>Resolution + Bitrate + Days</b> pe depend karta hai. H.265/H.265+ compression se thoda storage bach sakta hai.<br><br>
+        
+        <b>2. PoE Cable Length Guide:</b><br>
+        • 0–80m → Safe (Normal PoE kaafi)<br>
+        • 80–100m → Borderline (Achhi Cat6 + strong PoE switch use karein)<br>
+        • 100m se zyada → <b>External Power</b> ya PoE Extender zaroori
     </div>
 </div>
 
@@ -100,7 +139,7 @@ function addGroup(cams = 4, res = 4) {
                     <option value="4" ${res==4?'selected':''}>4MP</option>
                     <option value="5" ${res==5?'selected':''}>5MP</option>
                     <option value="6" ${res==6?'selected':''}>6MP</option>
-                    <option value="8" ${res==8?'selected':''}>8MP</option>
+                    <option value="8" ${res==8?'selected':''}>8MP / 4K</option>
                     <option value="12" ${res==12?'selected':''}>12MP</option>
                     <option value="16" ${res==16?'selected':''}>16MP</option>
                     <option value="20" ${res==20?'selected':''}>20MP+</option>
@@ -177,6 +216,18 @@ function calc() {
     document.getElementById("poe").textContent = poe;
     document.getElementById("hdd").textContent = h + " (≈ " + tb.toFixed(1) + " TB)";
     document.getElementById("out").style.display = "block";
+
+    // PoE Distance Warning
+    const warningBox = document.getElementById("poeWarning");
+    if (type.startsWith("IP") && cable > 100) {
+        warningBox.style.display = "block";
+        warningBox.innerHTML = `<b>⚠️ PoE Warning:</b> Average cable <b>${cable}m</b> hai. 100m se zyada pe voltage drop hota hai. <b>External Power</b> ya <b>PoE Extender</b> use karein.`;
+    } else if (type.startsWith("IP") && cable > 80) {
+        warningBox.style.display = "block";
+        warningBox.innerHTML = `<b>⚠️ PoE Caution:</b> Average cable <b>${cable}m</b> hai. 80–100m borderline range hai. Achhi quality <b>Cat6</b> + strong PoE+ switch use karein.`;
+    } else {
+        warningBox.style.display = "none";
+    }
 }
 
 // Start with one default group

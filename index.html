@@ -28,17 +28,14 @@
         .row > div{flex:1}
         .info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;color:#0369a1;line-height:1.5}
         .warning-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:#b91c1c;line-height:1.5;display:none}
-        .res-guide{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;line-height:1.6}
-        .res-guide table{width:100%;border-collapse:collapse;margin-top:8px}
-        .res-guide td{padding:4px 0;border-bottom:1px solid #e2e8f0}
-        .res-guide td:first-child{font-weight:bold;width:90px}
-        .poe-box{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:10px;margin-top:10px;font-size:13.5px}
+        .poe-box{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:12px;margin-top:12px;font-size:14px;line-height:1.6}
+        .poe-box b{color:#065f46}
     </style>
 </head>
 <body>
 <div class="wrap">
     <h1>📹 Arif CCTV Calculator</h1>
-    <p class="small">Mixed Resolution + Brand + PoE Watt (Min to Max)</p>
+    <p class="small">Mixed Resolution + Brand + Proper PoE Calculation</p>
 
     <label>Average Cable per Camera (m)</label>
     <input id="cable" type="number" value="30" min="1">
@@ -62,13 +59,12 @@
     <div class="result" id="out">
         <p><b>Total Cameras:</b> <span id="totalCams"></span></p>
         <p><b>Total Cable:</b> <span id="tc"></span> m</p>
-        <p><b>NVR:</b> <span id="nvr"></span> Channel</p>
+        <p><b>NVR:</b> <span id="nvr"></span></p>
         <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
 
-        <div class="poe-box" id="poeBox">
-            <b>🔌 PoE Switch Recommendation:</b><br>
-            <span id="poeMin"></span><br>
-            <span id="poeRec"></span>
+        <div class="poe-box">
+            <b>🔌 PoE Power & Switch Calculation</b><br><br>
+            <div id="poeDetails"></div>
         </div>
 
         <div id="groupSummary" style="margin-top:12px;font-size:13.5px;line-height:1.6;"></div>
@@ -82,21 +78,11 @@
         </div>
     </div>
 
-    <div class="res-guide">
-        <b>📷 Power Guide (approx)</b>
-        <table>
-            <tr><td>1MP - 4MP</td><td>\~7-9 Watt</td></tr>
-            <tr><td>5MP - 6MP</td><td>\~10 Watt</td></tr>
-            <tr><td>8MP / 4K</td><td>\~12 Watt</td></tr>
-            <tr><td>12MP+</td><td>\~13-15 Watt</td></tr>
-        </table>
-    </div>
-
     <div class="info-box">
-        <b>📌 Notes:</b><br>
-        • Minimum = bilkul zaroori ports + watts<br>
-        • Recommended = 30% extra power (safe choice)<br>
-        • 100m+ cable pe External Power / PoE Extender use karein
+        <b>📌 PoE Guide:</b><br>
+        • Minimum = Exact requirement<br>
+        • Recommended = 30% extra power (safe)<br>
+        • Common switches: 4 Port 60W, 8 Port 120W, 16 Port 250W, 24 Port 300W+
     </div>
 </div>
 
@@ -163,6 +149,14 @@ function removeGroup(id) {
     if (el) el.remove();
 }
 
+function getSwitchSize(ports) {
+    if (ports <= 4) return 4;
+    if (ports <= 8) return 8;
+    if (ports <= 16) return 16;
+    if (ports <= 24) return 24;
+    return 48;
+}
+
 function calc() {
     const cable = +document.getElementById("cable").value;
     const days = +document.getElementById("days").value;
@@ -211,32 +205,21 @@ function calc() {
     const tb = totalGB / 1024;
     let nvr = totalCams <= 4 ? 4 : totalCams <= 8 ? 8 : totalCams <= 16 ? 16 : totalCams <= 32 ? 32 : 64;
 
-    // PoE Min to Max Recommendation
-    let minPorts = totalCams;
-    let minWatt = Math.ceil(totalWatt);
-    let recWatt = Math.ceil(totalWatt * 1.3);
-
-    let minText = "";
-    let recText = "";
-
+    // PoE Calculation
+    let poeHTML = "";
     if (type.startsWith("IP")) {
-        if (minPorts <= 4) minText = `Minimum: 4 Port • ${minWatt}W`;
-        else if (minPorts <= 8) minText = `Minimum: 8 Port • ${minWatt}W`;
-        else if (minPorts <= 16) minText = `Minimum: 16 Port • ${minWatt}W`;
-        else minText = `Minimum: 24 Port • ${minWatt}W`;
+        const minWatt = Math.ceil(totalWatt);
+        const recWatt = Math.ceil(totalWatt * 1.3); // 30% extra
+        const switchPorts = getSwitchSize(totalCams);
 
-        if (minPorts <= 4) {
-            recText = recWatt <= 60 ? "Recommended: 4 Port • 60W" : "Recommended: 4 Port • 120W";
-        } else if (minPorts <= 8) {
-            recText = recWatt <= 120 ? "Recommended: 8 Port • 120W" : "Recommended: 8 Port • 150W / 250W";
-        } else if (minPorts <= 16) {
-            recText = recWatt <= 250 ? "Recommended: 16 Port • 250W" : "Recommended: 16 Port • 300W+";
-        } else {
-            recText = "Recommended: 24/48 Port • 300W+";
-        }
+        poeHTML = `
+            <b>Total Power Needed:</b> ${minWatt}W<br>
+            <b>Minimum Switch:</b> ${switchPorts} Port • ${minWatt}W<br>
+            <b>Recommended Switch:</b> ${switchPorts} Port • ${recWatt}W+ (with 30% extra)<br><br>
+            <small>Suggestion: Buy a switch with at least ${recWatt}W power budget.</small>
+        `;
     } else {
-        minText = "Minimum: Not Required (Analog)";
-        recText = "Recommended: Not Required (Analog)";
+        poeHTML = "PoE Switch: Not Required (Analog Cameras)";
     }
 
     // HDD
@@ -257,8 +240,7 @@ function calc() {
     document.getElementById("tc").textContent = totalCams * cable;
     document.getElementById("nvr").textContent = nvr + " Channel";
     document.getElementById("hdd").textContent = h + " (≈ " + tb.toFixed(1) + " TB)";
-    document.getElementById("poeMin").textContent = minText;
-    document.getElementById("poeRec").textContent = recText;
+    document.getElementById("poeDetails").innerHTML = poeHTML;
     document.getElementById("groupSummary").innerHTML = summary;
     document.getElementById("out").style.display = "block";
 

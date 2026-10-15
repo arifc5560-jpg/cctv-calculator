@@ -32,12 +32,13 @@
         .res-guide table{width:100%;border-collapse:collapse;margin-top:8px}
         .res-guide td{padding:4px 0;border-bottom:1px solid #e2e8f0}
         .res-guide td:first-child{font-weight:bold;width:90px}
+        .poe-box{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:10px;margin-top:10px;font-size:13.5px}
     </style>
 </head>
 <body>
 <div class="wrap">
     <h1>📹 Arif CCTV Calculator</h1>
-    <p class="small">Mixed Resolution + Brand & Model Support</p>
+    <p class="small">Mixed Resolution + Brand + PoE Watt (Min to Max)</p>
 
     <label>Average Cable per Camera (m)</label>
     <input id="cable" type="number" value="30" min="1">
@@ -50,7 +51,7 @@
 
     <label>Recording Days</label>
     <input id="days" type="number" value="30" min="1">
-    <div class="hint">30 = 1 month • 90 = 3 months • 180 = 6 months • 365 = 1 year</div>
+    <div class="hint">1 se 365+ tak daal sakte ho</div>
 
     <label style="margin-top:20px;">Camera Groups</label>
     <div id="groups"></div>
@@ -62,43 +63,47 @@
         <p><b>Total Cameras:</b> <span id="totalCams"></span></p>
         <p><b>Total Cable:</b> <span id="tc"></span> m</p>
         <p><b>NVR:</b> <span id="nvr"></span> Channel</p>
-        <p><b>PoE Switch:</b> <span id="poe"></span></p>
         <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
-        <div id="groupSummary" style="margin-top:12px;font-size:13.5px;line-height:1.6;"></div>
 
+        <div class="poe-box" id="poeBox">
+            <b>🔌 PoE Switch Recommendation:</b><br>
+            <span id="poeMin"></span><br>
+            <span id="poeRec"></span>
+        </div>
+
+        <div id="groupSummary" style="margin-top:12px;font-size:13.5px;line-height:1.6;"></div>
         <div class="warning-box" id="poeWarning"></div>
 
         <div class="affiliate-box">
             <b>🛒 Buy Recommended Products</b><br><br>
-            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Surveillance Hard Drive (Amazon)</a>
-            <a href="https://www.amazon.com/s?k=4k+poe+camera" target="_blank">→ 4K PoE Cameras (Amazon)</a>
-            <a href="https://www.amazon.com/s?k=poe+switch" target="_blank">→ PoE Switch (Amazon)</a>
+            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Surveillance Hard Drive</a>
+            <a href="https://www.amazon.com/s?k=poe+switch" target="_blank">→ PoE Switch</a>
+            <a href="https://www.amazon.com/s?k=4k+poe+camera" target="_blank">→ 4K PoE Cameras</a>
         </div>
     </div>
 
     <div class="res-guide">
-        <b>📷 Camera Resolution Guide</b>
+        <b>📷 Power Guide (approx)</b>
         <table>
-            <tr><td>1MP</td><td>Basic, budget</td></tr>
-            <tr><td>2MP</td><td>Most common</td></tr>
-            <tr><td>4MP</td><td>Best for homes & shops</td></tr>
-            <tr><td>8MP / 4K</td><td>Excellent detail</td></tr>
-            <tr><td>12MP+</td><td>Number plate & face recognition</td></tr>
+            <tr><td>1MP - 4MP</td><td>\~7-9 Watt</td></tr>
+            <tr><td>5MP - 6MP</td><td>\~10 Watt</td></tr>
+            <tr><td>8MP / 4K</td><td>\~12 Watt</td></tr>
+            <tr><td>12MP+</td><td>\~13-15 Watt</td></tr>
         </table>
     </div>
 
     <div class="info-box">
-        <b>📌 Important Notes:</b><br><br>
-        <b>1. Camera Brand & HDD:</b> Brand se storage pe zyada farq nahi padta. Resolution + Days zyada important hain.<br><br>
-        <b>2. PoE Cable Length:</b><br>
-        • 0–80m → Safe<br>
-        • 80–100m → Borderline (Cat6 + strong PoE switch)<br>
-        • 100m+ → External Power ya PoE Extender zaroori
+        <b>📌 Notes:</b><br>
+        • Minimum = bilkul zaroori ports + watts<br>
+        • Recommended = 30% extra power (safe choice)<br>
+        • 100m+ cable pe External Power / PoE Extender use karein
     </div>
 </div>
 
 <script>
 const gbMap = {1:5, 2:8, 3:12, 4:16, 5:20, 6:24, 8:32, 12:45, 16:60, 20:80};
+const wattMap = {1:7, 2:8, 3:8, 4:9, 5:10, 6:10, 8:12, 12:13, 16:14, 20:15};
+
 let groupCount = 0;
 
 function addGroup(cams = 4, res = 4) {
@@ -122,8 +127,6 @@ function addGroup(cams = 4, res = 4) {
             <option value="Uniview">Uniview</option>
             <option value="eufy">eufy</option>
             <option value="Tapo">Tapo</option>
-            <option value="ANNKE">ANNKE</option>
-            <option value="Hiseeu">Hiseeu</option>
             <option value="Other">Other</option>
         </select>
 
@@ -178,6 +181,7 @@ function calc() {
 
     let totalCams = 0;
     let totalGB = 0;
+    let totalWatt = 0;
     let summary = "<b>Camera Details:</b><br>";
 
     groups.forEach((g, i) => {
@@ -191,6 +195,7 @@ function calc() {
 
         totalCams += cams;
         totalGB += (gbMap[res] || 16) * cams * days;
+        totalWatt += (wattMap[res] || 10) * cams;
 
         let line = "• Group " + (i+1) + ": " + cams + " × " + brand;
         if (model) line += " " + model;
@@ -205,8 +210,36 @@ function calc() {
 
     const tb = totalGB / 1024;
     let nvr = totalCams <= 4 ? 4 : totalCams <= 8 ? 8 : totalCams <= 16 ? 16 : totalCams <= 32 ? 32 : 64;
-    let poe = type.startsWith("IP") ? nvr + " Port" : "Not Required";
 
+    // PoE Min to Max Recommendation
+    let minPorts = totalCams;
+    let minWatt = Math.ceil(totalWatt);
+    let recWatt = Math.ceil(totalWatt * 1.3);
+
+    let minText = "";
+    let recText = "";
+
+    if (type.startsWith("IP")) {
+        if (minPorts <= 4) minText = `Minimum: 4 Port • ${minWatt}W`;
+        else if (minPorts <= 8) minText = `Minimum: 8 Port • ${minWatt}W`;
+        else if (minPorts <= 16) minText = `Minimum: 16 Port • ${minWatt}W`;
+        else minText = `Minimum: 24 Port • ${minWatt}W`;
+
+        if (minPorts <= 4) {
+            recText = recWatt <= 60 ? "Recommended: 4 Port • 60W" : "Recommended: 4 Port • 120W";
+        } else if (minPorts <= 8) {
+            recText = recWatt <= 120 ? "Recommended: 8 Port • 120W" : "Recommended: 8 Port • 150W / 250W";
+        } else if (minPorts <= 16) {
+            recText = recWatt <= 250 ? "Recommended: 16 Port • 250W" : "Recommended: 16 Port • 300W+";
+        } else {
+            recText = "Recommended: 24/48 Port • 300W+";
+        }
+    } else {
+        minText = "Minimum: Not Required (Analog)";
+        recText = "Recommended: Not Required (Analog)";
+    }
+
+    // HDD
     let h;
     if (tb <= 1) h = "1TB";
     else if (tb <= 2) h = "2TB";
@@ -222,20 +255,21 @@ function calc() {
 
     document.getElementById("totalCams").textContent = totalCams;
     document.getElementById("tc").textContent = totalCams * cable;
-    document.getElementById("nvr").textContent = nvr;
-    document.getElementById("poe").textContent = poe;
+    document.getElementById("nvr").textContent = nvr + " Channel";
     document.getElementById("hdd").textContent = h + " (≈ " + tb.toFixed(1) + " TB)";
+    document.getElementById("poeMin").textContent = minText;
+    document.getElementById("poeRec").textContent = recText;
     document.getElementById("groupSummary").innerHTML = summary;
     document.getElementById("out").style.display = "block";
 
-    // PoE Warning
+    // Cable Warning
     const warn = document.getElementById("poeWarning");
     if (type.startsWith("IP") && cable > 100) {
         warn.style.display = "block";
-        warn.innerHTML = "<b>⚠️ PoE Warning:</b> " + cable + "m cable hai. 100m se zyada pe <b>External Power</b> ya PoE Extender use karein.";
+        warn.innerHTML = "<b>⚠️ PoE Warning:</b> " + cable + "m cable. 100m+ pe External Power ya PoE Extender use karein.";
     } else if (type.startsWith("IP") && cable > 80) {
         warn.style.display = "block";
-        warn.innerHTML = "<b>⚠️ PoE Caution:</b> " + cable + "m cable borderline hai. Achhi Cat6 + strong PoE+ switch use karein.";
+        warn.innerHTML = "<b>⚠️ PoE Caution:</b> " + cable + "m borderline hai. Achhi Cat6 + strong switch use karein.";
     } else {
         warn.style.display = "none";
     }

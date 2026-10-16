@@ -23,19 +23,20 @@
         .result{display:none;background:#eef8f1;padding:14px;border-radius:12px;margin-top:18px}
         .hint{font-size:12px;color:#888;margin-top:4px}
         .affiliate-box{margin-top:15px;padding:12px;background:#fff8e7;border:1px dashed #f0a500;border-radius:8px;text-align:center}
-        .affiliate-box a{color:#d97706;font-weight:bold;text-decoration:none;display:block;margin:6px 0}
+        .affiliate-box a{color:#d97706;font-weight:bold;text-decoration:none;display:block;margin:6px 0;padding:8px;background:#fff;border-radius:6px;border:1px solid #fcd34d}
         .row{display:flex;gap:10px}
         .row > div{flex:1}
         .info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-top:16px;font-size:13px;color:#0369a1;line-height:1.5}
         .warning-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:#b91c1c;line-height:1.5;display:none}
         .poe-box{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:12px;margin-top:12px;font-size:14px;line-height:1.6}
         .poe-box b{color:#065f46}
+        .country-box{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-bottom:10px;font-size:13px;text-align:center}
     </style>
 </head>
 <body>
 <div class="wrap">
     <h1>📹 Arif CCTV Calculator</h1>
-    <p class="small">Mixed Resolution + Brand + Proper PoE Calculation</p>
+    <p class="small">Mixed Resolution + Brand + PoE + Country Shopping</p>
 
     <label>Average Cable per Camera (m)</label>
     <input id="cable" type="number" value="30" min="1">
@@ -63,26 +64,26 @@
         <p><b>Estimated HDD:</b> <span id="hdd"></span></p>
 
         <div class="poe-box">
-            <b>🔌 PoE Power & Switch Calculation</b><br><br>
+            <b>🔌 PoE Power & Switch</b><br>
             <div id="poeDetails"></div>
         </div>
 
         <div id="groupSummary" style="margin-top:12px;font-size:13.5px;line-height:1.6;"></div>
         <div class="warning-box" id="poeWarning"></div>
 
+        <!-- Country Based Shopping -->
         <div class="affiliate-box">
-            <b>🛒 Buy Recommended Products</b><br><br>
-            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Surveillance Hard Drive</a>
-            <a href="https://www.amazon.com/s?k=poe+switch" target="_blank">→ PoE Switch</a>
-            <a href="https://www.amazon.com/s?k=4k+poe+camera" target="_blank">→ 4K PoE Cameras</a>
+            <div class="country-box" id="countryInfo">Detecting your country...</div>
+            <b>🛒 Buy from your Country</b>
+            <div id="buyLinks"></div>
         </div>
     </div>
 
     <div class="info-box">
-        <b>📌 PoE Guide:</b><br>
-        • Minimum = Exact requirement<br>
-        • Recommended = 30% extra power (safe)<br>
-        • Common switches: 4 Port 60W, 8 Port 120W, 16 Port 250W, 24 Port 300W+
+        <b>📌 Notes:</b><br>
+        • PoE: Minimum = exact need, Recommended = 30% extra<br>
+        • 100m+ cable pe External Power / PoE Extender use karein<br>
+        • Shopping links aapke country ke hisaab se change hote hain
     </div>
 </div>
 
@@ -91,6 +92,74 @@ const gbMap = {1:5, 2:8, 3:12, 4:16, 5:20, 6:24, 8:32, 12:45, 16:60, 20:80};
 const wattMap = {1:7, 2:8, 3:8, 4:9, 5:10, 6:10, 8:12, 12:13, 16:14, 20:15};
 
 let groupCount = 0;
+let userCountry = "Unknown";
+
+// Detect Country
+async function detectCountry() {
+    try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        userCountry = data.country_name || "Unknown";
+        const code = data.country_code || "";
+        showBuyLinks(code, userCountry);
+    } catch (e) {
+        userCountry = "Unknown";
+        showBuyLinks("", "Unknown");
+    }
+}
+
+function showBuyLinks(code, country) {
+    const box = document.getElementById("buyLinks");
+    const info = document.getElementById("countryInfo");
+    info.textContent = "Your Country: " + country;
+
+    let html = "";
+
+    if (code === "PK") {
+        // Pakistan
+        html = `
+            <a href="https://www.daraz.pk/catalog/?q=cctv%20hard%20drive" target="_blank">→ Daraz - Hard Drive / CCTV</a>
+            <a href="https://www.daraz.pk/catalog/?q=poe%20switch" target="_blank">→ Daraz - PoE Switch</a>
+            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Amazon - Surveillance HDD</a>
+        `;
+    } else if (code === "IN") {
+        // India
+        html = `
+            <a href="https://www.amazon.in/s?k=surveillance+hard+drive" target="_blank">→ Amazon.in - Hard Drive</a>
+            <a href="https://www.flipkart.com/search?q=poe%20switch" target="_blank">→ Flipkart - PoE Switch</a>
+            <a href="https://www.amazon.in/s?k=4k+poe+camera" target="_blank">→ Amazon.in - 4K Cameras</a>
+        `;
+    } else if (code === "AE" || code === "SA" || code === "QA" || code === "KW" || code === "BH" || code === "OM") {
+        // Gulf
+        html = `
+            <a href="https://www.amazon.ae/s?k=surveillance+hard+drive" target="_blank">→ Amazon.ae - Hard Drive</a>
+            <a href="https://www.noon.com/search/?q=poe%20switch" target="_blank">→ Noon - PoE Switch</a>
+            <a href="https://www.amazon.ae/s?k=4k+poe+camera" target="_blank">→ Amazon.ae - 4K Cameras</a>
+        `;
+    } else if (code === "GB") {
+        // UK
+        html = `
+            <a href="https://www.amazon.co.uk/s?k=surveillance+hard+drive" target="_blank">→ Amazon.co.uk - Hard Drive</a>
+            <a href="https://www.amazon.co.uk/s?k=poe+switch" target="_blank">→ Amazon.co.uk - PoE Switch</a>
+        `;
+    } else if (code === "US") {
+        // USA
+        html = `
+            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Amazon.com - Hard Drive</a>
+            <a href="https://www.amazon.com/s?k=poe+switch" target="_blank">→ Amazon.com - PoE Switch</a>
+            <a href="https://www.amazon.com/s?k=4k+poe+camera" target="_blank">→ Amazon.com - 4K Cameras</a>
+        `;
+    } else {
+        // Default
+        html = `
+            <a href="https://www.amazon.com/s?k=surveillance+hard+drive" target="_blank">→ Amazon - Hard Drive</a>
+            <a href="https://www.amazon.com/s?k=poe+switch" target="_blank">→ Amazon - PoE Switch</a>
+            <a href="https://www.amazon.com/s?k=4k+poe+camera" target="_blank">→ Amazon - 4K Cameras</a>
+        `;
+    }
+
+    box.innerHTML = html;
+}
 
 function addGroup(cams = 4, res = 4) {
     groupCount++;
@@ -205,24 +274,21 @@ function calc() {
     const tb = totalGB / 1024;
     let nvr = totalCams <= 4 ? 4 : totalCams <= 8 ? 8 : totalCams <= 16 ? 16 : totalCams <= 32 ? 32 : 64;
 
-    // PoE Calculation
     let poeHTML = "";
     if (type.startsWith("IP")) {
         const minWatt = Math.ceil(totalWatt);
-        const recWatt = Math.ceil(totalWatt * 1.3); // 30% extra
+        const recWatt = Math.ceil(totalWatt * 1.3);
         const switchPorts = getSwitchSize(totalCams);
 
         poeHTML = `
             <b>Total Power Needed:</b> ${minWatt}W<br>
             <b>Minimum Switch:</b> ${switchPorts} Port • ${minWatt}W<br>
-            <b>Recommended Switch:</b> ${switchPorts} Port • ${recWatt}W+ (with 30% extra)<br><br>
-            <small>Suggestion: Buy a switch with at least ${recWatt}W power budget.</small>
+            <b>Recommended Switch:</b> ${switchPorts} Port • ${recWatt}W+ (30% extra)
         `;
     } else {
-        poeHTML = "PoE Switch: Not Required (Analog Cameras)";
+        poeHTML = "PoE Switch: Not Required (Analog)";
     }
 
-    // HDD
     let h;
     if (tb <= 1) h = "1TB";
     else if (tb <= 2) h = "2TB";
@@ -244,7 +310,6 @@ function calc() {
     document.getElementById("groupSummary").innerHTML = summary;
     document.getElementById("out").style.display = "block";
 
-    // Cable Warning
     const warn = document.getElementById("poeWarning");
     if (type.startsWith("IP") && cable > 100) {
         warn.style.display = "block";
@@ -257,7 +322,9 @@ function calc() {
     }
 }
 
+// Start
 addGroup(4, 4);
+detectCountry();
 </script>
 </body>
 </html>
